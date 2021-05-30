@@ -33,7 +33,7 @@ class Welcome extends CI_Controller
 					if ($sdata['hak_akses'] == '0') {
 						redirect('admin/Dashboard');
 					} else if ($sdata['hak_akses'] == '1') {
-						redirect('pengguna/dashboard');
+						redirect('pengguna/barang');
 					}
 				} else {
 					redirect('welcome');

@@ -14,8 +14,38 @@ class Barang extends CI_Controller
     {
         $kirim = [
             'merk' => $this->mp->ambil_data(),
-            'barang' => $this->mb->ambil_data(),
         ];
-        $this->template->load('pengguna/template', 'pengguna/barang/data', $kirim);
+
+        $this->load->view('pengguna/template', $kirim);
+    }
+    public function loadProduct()
+    {
+        if ($this->input->post('id')) {
+            $kirim = [
+                'barang' => $this->mb->ambilBarangPerKategori($this->input->post('id')),
+            ];
+            $this->load->view('pengguna/barang/data', $kirim);
+        } else {
+            $kirim = [
+                'barang' => $this->mb->ambil_data(),
+            ];
+            $this->load->view('pengguna/barang/data', $kirim);
+        }
+    }
+    public function cariProduct()
+    {
+        if ($this->input->post('val')) {
+            $kirim = [
+                'barang' => $this->mb->ambilBarangName($this->input->post('val')),
+            ];
+            $this->load->view('pengguna/barang/data', $kirim);
+        }
+    }
+    public function loadCart()
+    {
+        $kirim = [
+            'cart' => $this->mb->ambil_cart(),
+        ];
+        $this->load->view('pengguna/barang/cart', $kirim);
     }
 }

@@ -33,10 +33,10 @@
 
 </head>
 
-<body class="navbar-bottom">
+<body class="navbar-bottom navbar-top">
 
     <!-- Main navbar -->
-    <div class="navbar navbar-expand-md navbar-dark">
+    <div class="navbar navbar-expand-md navbar-dark fixed-top">
         <div class="navbar-brand">
             <a href="<?= base_url('pengguna/' . $this->uri->segment(2)) ?>" class="d-inline-block">
                 <img src="<?= base_url(); ?>global_assets/images/logo_light.png" alt="">
@@ -44,9 +44,6 @@
         </div>
 
         <div class="d-md-none">
-            <a href="" class="navbar-toggler">
-                <i class="icon-cart2"></i>
-            </a>
             <button class="navbar-toggler sidebar-mobile-component-toggle" type="button">
                 <i class="icon-search4"></i>
             </button>
@@ -57,6 +54,7 @@
                 <i class="icon-paragraph-justify3"></i>
             </button>
         </div>
+        <input type="hidden" name="urlini" value="<?= $this->uri->segment(1) . '/' . $this->uri->segment(2); ?>" id="urlini">
 
         <div class="collapse navbar-collapse" id="navbar-mobile">
             <ul class="navbar-nav">
@@ -257,14 +255,13 @@
                 <div class="d-flex align-items-start flex-column flex-md-row">
 
                     <!-- Left content -->
-                    <div class="w-100 order-2 order-md-1">
-                        <?= $contents ?>
+                    <div class="w-100 order-2 order-md-1" id="loadProduct">
                     </div>
                     <!-- /left content -->
 
 
                     <!-- Right sidebar component -->
-                    <div class="sidebar sidebar-light bg-transparent sidebar-component sidebar-component-right border-0 shadow-0 order-1 order-md-2 sidebar-expand-md">
+                    <div style="z-index: auto;" class="sidebar sidebar-light bg-transparent sidebar-component sidebar-component-right border-0 shadow-0 order-1 order-md-2 sidebar-expand-md">
 
                         <!-- Sidebar content -->
                         <div class="sidebar-content">
@@ -282,9 +279,12 @@
 
                                 <div class="card-body border-0 p-0">
                                     <ul class="nav nav-sidebar mb-2">
+                                        <li class="nav-item">
+                                            <a href="#" onclick="loadProduct()" class="nav-link"><b>TAMPILKAN SEMUA</b></a>
+                                        </li>
                                         <?php foreach ($merk->result_array() as $n => $k) : ?>
                                             <li class="nav-item">
-                                                <a href="" class="nav-link"><?= ++$n ?>. <?= $k['nama_merk'] ?></a>
+                                                <a href="#" onclick="loadProductPerKategori(<?= $k['id_merk'] ?>)" class="nav-link"><?= ++$n ?>. <?= $k['nama_merk'] ?></a>
                                             </li>
                                         <?php endforeach; ?>
                                     </ul>
@@ -304,9 +304,9 @@
                                 <div class="card-body">
                                     <div class="col-sm-12">
                                         <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="CARI PRODUCT">
+                                            <input type="text" name="cariProduct" id="cariProduct" class="form-control" placeholder="CARI PRODUCT">
                                             <span class="input-group-append">
-                                                <button class="btn btn-light" type="button"><i class="icon-search4"></i></button>
+                                                <button class="btn btn-light" type="button" onclick="cariProduct()"><i class="icon-search4"></i></button>
                                             </span>
                                         </div>
                                     </div>
@@ -328,24 +328,15 @@
 
 
             <!-- Footer -->
-            <div class="navbar navbar-expand-lg navbar-light fixed-bottom">
+            <div class="navbar navbar-expand-lg navbar-light bg-primary fixed-bottom">
                 <div class="text-center d-lg-none w-100">
-                    <button type="button" class="navbar-toggler dropdown-toggle" data-toggle="collapse" data-target="#navbar-footer">
-                        <i class="icon-unfold mr-2"></i>
-                        Footer
+                    <button type="button" id="buttonCart" class="navbar-toggler dropdown-toggle text-white" disabled data-toggle="collapse" data-target="#navbar-footer">
+                        <b><i class="icon-spinner2 spinner" id="loadingLoadCart"></i> <i class="icon-cart2 mr-2"></i>
+                            KERANJANG</b>
                     </button>
                 </div>
-
-                <div class="navbar-collapse collapse" id="navbar-footer">
-                    <span class="navbar-text">
-                        &copy; 2015 - 2018. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov" target="_blank">Eugene Kopyov</a>
-                    </span>
-
-                    <ul class="navbar-nav ml-lg-auto">
-                        <li class="nav-item"><a href="https://kopyov.ticksy.com/" class="navbar-nav-link" target="_blank"><i class="icon-lifebuoy mr-2"></i> Support</a></li>
-                        <li class="nav-item"><a href="http://demo.interface.club/limitless/docs/" class="navbar-nav-link" target="_blank"><i class="icon-file-text2 mr-2"></i> Docs</a></li>
-                        <li class="nav-item"><a href="https://themeforest.net/item/limitless-responsive-web-application-kit/13080328?ref=kopyov" class="navbar-nav-link font-weight-semibold"><span class="text-pink-400"><i class="icon-cart2 mr-2"></i> Purchase</span></a></li>
-                    </ul>
+                <div class="navbar-collapse collapse bg-white" id="navbar-footer">
+                    <div id="loadCart"></div>
                 </div>
             </div>
             <!-- /footer -->
@@ -359,3 +350,65 @@
 </body>
 
 </html>
+<script>
+    var urlini = $("#urlini").val();
+    if (urlini == "pengguna/barang") {
+        $.when(loadCart(), loadProduct()).done(function() {
+            $("#loadingLoadCart").css("display", "none");
+            $('#buttonCart').removeAttr('disabled', 'disabled');
+        })
+    }
+
+    function loadCart() {
+        $.ajax({
+            url: "<?= base_url('pengguna/barang/loadCart') ?>",
+            type: "POST",
+            dataType: "HTML",
+            success: function(a) {
+                $("#loadCart").html(a);
+            },
+        });
+    }
+
+    function loadProduct() {
+        $.ajax({
+            url: "<?= base_url('pengguna/barang/loadProduct') ?>",
+            type: "GET",
+            dataType: "HTML",
+            success: function(a) {
+                $("#loadProduct").html(a);
+            },
+        });
+    }
+
+    function loadProductPerKategori(id) {
+        $.ajax({
+            url: "<?= base_url('pengguna/barang/loadProduct') ?>",
+            type: "POST",
+            data: {
+                id: id
+            },
+            dataType: "HTML",
+            success: function(a) {
+                $("#loadProduct").html('');
+                $("#loadProduct").html(a);
+            },
+        });
+    }
+
+    function cariProduct() {
+        var val = $('#cariProduct').val();
+        $.ajax({
+            url: "<?= base_url('pengguna/barang/cariProduct') ?>",
+            type: "POST",
+            data: {
+                val: val
+            },
+            dataType: "HTML",
+            success: function(a) {
+                $("#loadProduct").html('');
+                $("#loadProduct").html(a);
+            },
+        });
+    }
+</script>
